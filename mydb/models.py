@@ -24,6 +24,7 @@ class rooms_teacher(models.Model):
     id = models.AutoField
     roomId = models.CharField(null=False,max_length=80)
     teacherId = models.CharField(null=False,max_length=80)
+    name = models.CharField(null=False, default="NoUserNick", max_length=255)
     date =  models.CharField(null=False,max_length=80)
     time =  models.CharField(null=False,max_length=80)
     roomType = models.IntegerField(null=False, default=0)
