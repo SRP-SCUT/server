@@ -79,8 +79,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'srpprogram',
-        'USER':'srpProgram_user',
-        'PASSWORD':'srpProgram_123@#',
+        'USER':'root',
+        'PASSWORD':'199902',
         'HOST':'localhost',
         'PORT':'3306',
         'CHARSET':'utf8',
