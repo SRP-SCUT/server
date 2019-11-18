@@ -43,4 +43,31 @@ def get_appointment(request):
         Jsondata=json.dumps(result)
         #Jsondata是返回的Json数据
         return HttpResponse(Jsondata,content_type='application/json')
-# Create your views here.
+def meetingRoomAppointment(request):
+    body=request.body
+    data=json.loads(body)
+    teacherId=data['teacherId']
+    roomId=data['roomId']
+    date=data['date']
+    time=data['time']
+    
+    result = {}
+    SuccessResult = {"code": 0, "msg": "预约成功", "data": []}
+    FailedResult = {"code": 1, "msg": "预约失败", "data": []}
+    
+    #判断会议室是否已被占用
+    #roomType 1代表会议室，2代表实验室
+    if models.rooms_teacher.objects.filter(roomType=1,date=date,time=time)==None:
+        result = FailedResult
+    else:
+        #查询teacherId 所对应的name
+        nameResult = models.teacher.objects.filter(teacherId = teacherId)
+        if nameResult == None:
+            result = FailedResult
+        else:
+            name = nameResult[0]['name']
+            models.rooms_teacher.objects.create(roomId=roomId,teacherId=teacherId,name=name,roomType=1,date=date,time=time,status=1)
+            result = SuccessResult    
+    Jsondata=json.dumps(result)
+    #Jsondata是返回的Json数据
+    return HttpResponse(Jsondata,content_type='application/json')
