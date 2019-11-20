@@ -72,3 +72,21 @@ def meetingRoomAppointment(request):
         
     #Jsondata是返回的Json数据
     return HttpResponse(Jsondata,content_type='application/json')
+
+def checkWorkNumber(request):
+    body = request.body
+    data = json.loads(body)
+    nickName = data['nickName']
+    all_information=models.teacher.objects.filter(weChatId=nickName)
+    results={"code": 0, "msg": "查询成功", "data": []}
+    if all_information == None:
+        results['code'] = 1
+        results['msg'] = "无工号"
+    else:
+        results['code'] = 0
+        results['msg'] = "查询成功"
+        for item in all_information:
+            results["data"].append({"WorkNum":item.teacherId})
+        Jsondata = json.dumps(results)
+        return HttpResponse(Jsondata,content_type='application/json')
+
