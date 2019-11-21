@@ -24,9 +24,9 @@ def get_history(request):
             i+=1
             result["data"].append({"room":item['roomId'],"roomType":item['roomType'],"date":item['date'],
                                    "timeslot":item['time'],"status":item['status']})
-        Jsondata=json.dumps(result)
-        #Jsondata是返回的Json数据
-        return HttpResponse(Jsondata,content_type='application/json')
+    Jsondata=json.dumps(result)
+    #Jsondata是返回的Json数据
+    return HttpResponse(Jsondata,content_type='application/json')
 #前端还是用post方法！
 def get_appointment(request):
     all_information = models.rooms_teacher.objects.filter(status=2)#2代表待处理
@@ -40,9 +40,9 @@ def get_appointment(request):
         for item in all_information:
             result["data"].append({"workNum":item['teacherId'],"teacherName":item['name'],"roomType":item['roomType'],
                                    "roomId":item['roomId'],"date":item['date'],"timeslot":item['time']})
-        Jsondata=json.dumps(result)
-        #Jsondata是返回的Json数据
-        return HttpResponse(Jsondata,content_type='application/json')
+    Jsondata=json.dumps(result)
+    #Jsondata是返回的Json数据
+    return HttpResponse(Jsondata,content_type='application/json')
 def meetingRoomAppointment(request):
     body=request.body
     data=json.loads(body)
@@ -68,7 +68,7 @@ def meetingRoomAppointment(request):
         else: 
             models.rooms_teacher.objects.create(roomId=roomId,teacherId=teacherId,name=name,roomType=1,date=date,time=time,status=1)
             result = SuccessResult    
-        Jsondata=json.dumps(result)
+    Jsondata=json.dumps(result)
         
     #Jsondata是返回的Json数据
     return HttpResponse(Jsondata,content_type='application/json')
@@ -78,15 +78,15 @@ def checkWorkNumber(request):
     data = json.loads(body)
     nickName = data['nickName']
     all_information=models.teacher.objects.filter(weChatId=nickName)
-    results={"code": 0, "msg": "查询成功", "data": []}
-    if all_information == None:
-        results['code'] = 1
+    results={"code": 1, "msg": "查询成功", "data": []}
+    if len(all_information) == 0:
+        results['code'] = 0
         results['msg'] = "无工号"
     else:
-        results['code'] = 0
+        results['code'] = 1
         results['msg'] = "查询成功"
         for item in all_information:
-            results["data"].append({"WorkNum":item.teacherId})
-        Jsondata = json.dumps(results)
-        return HttpResponse(Jsondata,content_type='application/json')
+            results["data"].append({"workNum":item.teacherId})
+    Jsondata = json.dumps(results)
+    return HttpResponse(Jsondata,content_type='application/json')
 
