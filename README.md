@@ -41,4 +41,70 @@
    workNum=data['workNum']
    ```
 
-   
+
+## 3. API 细节
+
+```javascript
+path：user/meetingRoom/checkTime
+method：Post
+data：{
+roomNum
+date：
+}
+//后端需要在数据库中查roomNum对应date的那些时间段已经被预约了，吧已预约的时间段返回给我
+{
+code： 0/1
+msg：'查询失败/成功'
+data:{
+[]//(已预约的时间段列表）
+}
+}
+
+
+```
+
+
+
+历史预约页面：
+
+```javascript
+PATH：/user/history
+method: POST
+data: {
+nickName: '',
+workNum: ''
+}
+//你使用workNum到数据库查询这个workNum对应的预约记录，返回前15条
+//返回数据:
+{
+code: 0/1,  (代表成功/失败）
+msg: "查询成功/失败",
+data: 一个数组，每一个item包括：{
+room: "",
+roomType: "",
+date: "",
+timeslot: "",
+status: ""
+}
+}
+```
+
+插入记录(绑定工号):
+
+```javascript
+path: user/signup
+data:{
+nickName:
+workNum:
+}
+//向数据库插入一条记录，teacherId值为workNum，wechatId值为nickName，插入成功后返回{
+code：1
+msg： '绑定成功'
+}
+否则失败的话返回
+{
+code：0,
+msg: '插入失败'
+}
+```
+
