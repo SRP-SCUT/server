@@ -20,4 +20,22 @@ class RoomsTeacherAdmin(admin.ModelAdmin):
     list_filter = ('status',)
     ordering = ('-date',)
     search_fields = ['status','name','roomId']
+    list_editable = ['teacherId','name']
     actions = [accept_satus,reject_status]
+    list_per_page = 50
+
+class RoomAdmin(admin.ModelAdmin):
+    list_display = ('roomId','maxCap','view_room_type')
+    def view_room_type(self,obj):
+        if obj.roomType==0:
+            return '会议室'
+        elif obj.roomType==1:
+            return '实验室'
+    list_filter = ('roomType',)
+    ordering = ('roomId',)
+    list_editable = ['maxCap']
+
+class TeacherAdmin(admin.ModelAdmin):
+    list_display = ('teacherId','weChatId','name')
+    ordering = ('name',)
+    list_editable = ['name','weChatId']
