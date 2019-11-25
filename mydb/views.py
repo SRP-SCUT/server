@@ -108,18 +108,50 @@ def insertRecord(request):
     nickName = data['nickName']
     workNum = data['workNum']
     results = {"code": 1, "msg": "绑定成功"}
-    #插入一条绑定工号记录
-    t1 = models.teacher(teacherId=workNum, weChatId=nickName)
-    t1.save()
-    #另外一种插入方式
-    #models.teacher.objects.create(teacherId=workNum, weChatId=nickName)
-    #查询是否成功插入
-    all_information = models.teacher.objects.filter(weChatId=nickName, teacherId=workNum)
-    if len(all_information) == 0:
+    #查看此nickName是否绑定了工号，若已绑定则返回“插入失败”
+    checkNum = models.teacher.objects.filter(weChatId=nickName)
+    #checkNum不为空，说明已绑定过工号
+    if len(checkNum) != 0:
         results['code'] = 0
         results['msg'] = "插入失败"
     else:
-        results['code'] = 1
-        results['msg'] = "绑定成功"
+        #checkNum为空，无绑定记录，则插入一条绑定工号记录
+        t1 = models.teacher(teacherId=workNum, weChatId=nickName)
+        t1.save()
+        #另外一种插入方式
+        #models.teacher.objects.create(teacherId=workNum, weChatId=nickName)
+        #查询是否成功插入
+        all_information = models.teacher.objects.filter(weChatId=nickName, teacherId=workNum)
+        if len(all_information) == 0:
+            results['code'] = 0
+            results['msg'] = "插入失败"
+        else:
+            results['code'] = 1
+            results['msg'] = "绑定成功"
+    Jsondata = json.dumps(results)
+    return HttpResponse(Jsondata, content_type='application/json')
+
+def deleteRecord(request):
+    body = request.body
+    data = json.loads(body)
+    nickName = data['nickName']
+    results = {"code": 1, "msg": "删除成功"}
+    checkRecord = models.teacher.objects.filter(weChatId=nickName)
+    #如果找不到记录，则无需删除，返回删除失败
+    if len(checkRecord) == 0:
+        results['code'] = 0
+        results['msg'] = "删除失败"
+    else:
+        #找得到记录，删除记录
+        #checkRecord.delete()
+        models.teacher.objects.filter(weChatId=nickName).delete()
+        #检查是否删除成功
+        all_information = models.teacher.objects.filter(weChatId=nickName)
+        if len(all_information) == 0:
+            results['code'] = 1
+            results['msg'] = "删除成功"
+        else:
+            results['code'] = 0
+            results['msg'] = "删除失败"
     Jsondata = json.dumps(results)
     return HttpResponse(Jsondata, content_type='application/json')
