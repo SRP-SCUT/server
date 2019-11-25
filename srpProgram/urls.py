@@ -22,5 +22,6 @@ urlpatterns = [
     path('user/history', views.get_history),
     path('appointment',views.get_appointment),
     path('meetingRoomAppointment',views.meetingRoomAppointment),
-    path('user/login', views.checkWorkNumber)
+    path('user/login', views.checkWorkNumber),
+    path('user/signup',views.insertRecord)
 ]
