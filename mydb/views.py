@@ -54,23 +54,24 @@ def meetingRoomAppointment(request):
     result = {}
     SuccessResult = {"code": 0, "msg": "预约成功", "data": []}
     FailedResult = {"code": 1, "msg": "预约失败", "data": []}
+    
     #查询teacherId 所对应的name
-    nameResult = models.teacher.objects.filter(teacherId = teacherId)
-    if nameResult == None:
+    if models.teacher.objects.filter(teacherId = teacherId).count()!=1:
         result = FailedResult
     else:
-        name = nameResult[0]['name']
+        
+        name = models.teacher.objects.filter(teacherId = teacherId)[0].name
         #判断会议室是否已被占用
         #roomType 1代表会议室，2代表实验室
-        if models.rooms_teacher.objects.filter(roomType=1,date=date,time=time)==None:
+        if models.rooms_teacher.objects.filter(roomType=1,date=date,time=time).count()==0:
             models.rooms_teacher.objects.create(roomId=roomId,teacherId=teacherId,name=name,roomType=1,date=date,time=time,status=0)
             result = FailedResult   
         else: 
             models.rooms_teacher.objects.create(roomId=roomId,teacherId=teacherId,name=name,roomType=1,date=date,time=time,status=1)
-            result = SuccessResult    
-    Jsondata=json.dumps(result)
-        
+            result = SuccessResult 
+               
     #Jsondata是返回的Json数据
+    Jsondata=json.dumps(result)    
     return HttpResponse(Jsondata,content_type='application/json')
 
 def checkWorkNumber(request):
