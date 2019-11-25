@@ -41,6 +41,12 @@
    workNum=data['workNum']
    ```
 
+3. > roomType: 0 : meetingRoom, 1 : labroom
+   >
+   > status: 0: 拒绝，1：预约成功，2：待定
+
+    
+
 
 ## 3. API 细节
 
