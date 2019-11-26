@@ -54,36 +54,67 @@ def get_appointment(request):
     Jsondata=json.dumps(result)
     #Jsondata是返回的Json数据
     return HttpResponse(Jsondata,content_type='application/json')
+
+
 def meetingRoomAppointment(request):
-    body=request.body
-    data=json.loads(body)
-    teacherId=data['teacherId']
-    roomId=data['roomId']
-    date=data['date']
-    time=data['time']
-    
+    body = request.body
+    data = json.loads(body)
+    teacherId = data['teacherId']
+    roomId = data['roomId']
+    date = data['date']
+    time = data['time']
+
     result = {}
-    SuccessResult = {"code": 1, "msg": "预约成功", "data": []}
-    FailedResult = {"code": 0, "msg": "预约失败", "data": []}
-    
-    #查询teacherId 所对应的name
-    if models.teacher.objects.filter(teacherId = teacherId).count()!=1:
+    SuccessResult = {"code": 0, "msg": "预约成功", "data": []}
+    FailedResult = {"code": 1, "msg": "预约失败", "data": []}
+
+    # 查询teacherId 所对应的name
+    if models.teacher.objects.filter(teacherId=teacherId).count() != 1:
         result = FailedResult
     else:
-        
-        name = models.teacher.objects.filter(teacherId = teacherId)[0].name
-        #判断会议室是否已被占用
-        #roomType 1代表会议室，2代表实验室
-        if models.rooms_teacher.objects.filter(roomType=1,date=date,time=time).count()==0:
-            models.rooms_teacher.objects.create(roomId=roomId,teacherId=teacherId,name=name,roomType=1,date=date,time=time,status=0)
-            result = FailedResult   
-        else: 
-            models.rooms_teacher.objects.create(roomId=roomId,teacherId=teacherId,name=name,roomType=1,date=date,time=time,status=1)
-            result = SuccessResult 
-               
-    #Jsondata是返回的Json数据
-    Jsondata=json.dumps(result)    
-    return HttpResponse(Jsondata,content_type='application/json')
+
+        name = models.teacher.objects.filter(teacherId=teacherId)[0].name
+        # 判断会议室是否已被占用
+        # roomType 0代表会议室，1代表实验室
+        if models.rooms_teacher.objects.filter(roomType=1, date=date, time=time).count() == 0:
+            models.rooms_teacher.objects.create(roomId=roomId, teacherId=teacherId, name=name, roomType=1, date=date,
+                                                time=time, status=0)
+            result = FailedResult
+        else:
+            models.rooms_teacher.objects.create(roomId=roomId, teacherId=teacherId, name=name, roomType=1, date=date,
+                                                time=time, status=1)
+            result = SuccessResult
+
+            # Jsondata是返回的Json数据
+    Jsondata = json.dumps(result)
+    return HttpResponse(Jsondata, content_type='application/json')
+
+
+def meetingRoomCheck(request):
+    body = request.body
+    data = json.loads(body)
+    roomId = data['roomNum']
+    date = data['date']
+
+    result = {}
+    FailedResult = {"code": 0, "msg": "查询失败", "data": []}
+    SuccessResult = {"code": 1, "msg": "查询成功", "data": []}
+    data = []
+    # 判断会议室是否已被占用
+    # roomType 0代表会议室，1代表实验室
+    # info=models.rooms_teacher.objects.filter(date=date)
+    if len(models.rooms_teacher.objects.filter(roomType=0, date=date, roomId=roomId)) == 0:
+        result = FailedResult
+    else:
+        items = models.rooms_teacher.objects.filter(roomType=0, date=date, roomId=roomId, status=1)
+        for item in items:
+            data.append(item.time)
+        result = SuccessResult
+        result['data'] = data
+
+    # Jsondata是返回的Json数据
+    Jsondata = json.dumps(result)
+    return HttpResponse(Jsondata, content_type='application/json')
 
 def checkWorkNumber(request):
     body = request.body

@@ -24,5 +24,6 @@ urlpatterns = [
     path('meetingRoomAppointment',views.meetingRoomAppointment),
     path('user/login', views.checkWorkNumber),
     path('user/signup',views.insertRecord),
-    path('user/unbind', views.deleteRecord)
+    path('user/unbind', views.deleteRecord),
+    path('user/meetingRoom/checkTime',views.meetingRoomCheck)
 ]
