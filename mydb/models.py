@@ -28,7 +28,7 @@ class rooms_teacher(models.Model):
     date =  models.CharField(null=False,max_length=80)
     time =  models.CharField(null=False,max_length=80)
     roomType = models.IntegerField(null=False, default=0)
-    status=models.IntegerField(null=False, default=0)
+    status=models.IntegerField(null=False, default=2)
     class Meta:
         #managed = False
         db_table = 'rooms_teacher'
