@@ -47,8 +47,9 @@
 
     
 
-
 ## 3. API 细节
+
+查询会议室可用时段：
 
 ```javascript
 path：user/meetingRoom/checkTime
@@ -69,7 +70,25 @@ data:{
 
 ```
 
+预约会议室：
 
+```javascript
+{
+	path: user/meetingRoom/order
+    method: 'POST'
+    data: {
+        roomNum:
+        date:
+        timeslot:
+    }
+    后端查询该房间在该日期该时段是否已预约，若已预约则返回失败，否则成功，并在rooms_teacher表中加入该记录
+    返回:
+    {
+        code: 0/1,
+        msg : '预约失败/成功'
+    }
+}
+```
 
 历史预约页面：
 
@@ -114,3 +133,4 @@ msg: '插入失败'
 }
 ```
 
+查询
