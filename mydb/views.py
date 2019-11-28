@@ -55,34 +55,30 @@ def get_appointment(request):
     #Jsondata是返回的Json数据
     return HttpResponse(Jsondata,content_type='application/json')
 
-
+#会议室预约
 def meetingRoomAppointment(request):
     body = request.body
     data = json.loads(body)
     teacherId = data['teacherId']
-    roomId = data['roomId']
+    roomId = data['roomNum']  
     date = data['date']
-    time = data['time']
+    time = data['timeslot']
 
     result = {}
-    SuccessResult = {"code": 0, "msg": "预约成功", "data": []}
-    FailedResult = {"code": 1, "msg": "预约失败", "data": []}
+    SuccessResult = {"code": 0, "msg": "预约成功"}
+    FailedResult = {"code": 1, "msg": "预约失败"}
 
     # 查询teacherId 所对应的name
     if models.teacher.objects.filter(teacherId=teacherId).count() != 1:
         result = FailedResult
     else:
-
         name = models.teacher.objects.filter(teacherId=teacherId)[0].name
         # 判断会议室是否已被占用
         # roomType 0代表会议室，1代表实验室
-        if models.rooms_teacher.objects.filter(roomType=1, date=date, time=time).count() == 0:
-            models.rooms_teacher.objects.create(roomId=roomId, teacherId=teacherId, name=name, roomType=1, date=date,
-                                                time=time, status=0)
+        if models.rooms_teacher.objects.filter(roomId=roomId,roomType=0, date=date, time=time, status=1).count() > 0:
             result = FailedResult
         else:
-            models.rooms_teacher.objects.create(roomId=roomId, teacherId=teacherId, name=name, roomType=1, date=date,
-                                                time=time, status=1)
+            models.rooms_teacher.objects.create(roomId=roomId, teacherId=teacherId, name=name, roomType=0, date=date,time=time, status=1)
             result = SuccessResult
 
             # Jsondata是返回的Json数据
