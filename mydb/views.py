@@ -65,8 +65,8 @@ def meetingRoomAppointment(request):
     time = data['timeslot']
 
     result = {}
-    SuccessResult = {"code": 0, "msg": "预约成功"}
-    FailedResult = {"code": 1, "msg": "预约失败"}
+    SuccessResult = {"code": 1, "msg": "预约成功"}
+    FailedResult = {"code": 0, "msg": "预约失败"}
 
     # 查询teacherId 所对应的name
     if models.teacher.objects.filter(teacherId=teacherId).count() != 1:
@@ -78,7 +78,7 @@ def meetingRoomAppointment(request):
         if models.rooms_teacher.objects.filter(roomId=roomId,roomType=0, date=date, time=time, status=1).count() > 0:
             result = FailedResult
         else:
-            models.rooms_teacher.objects.create(roomId=roomId, teacherId=teacherId, name=name, roomType=0, date=date,time=time, status=1)
+            models.rooms_teacher.objects.create(roomId=roomId, teacherId=teacherId, name=name, roomType=0, date=date,time=time, status=2)
             result = SuccessResult
 
             # Jsondata是返回的Json数据
