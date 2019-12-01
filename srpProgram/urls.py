@@ -25,6 +25,6 @@ urlpatterns = [
     path('user/login', views.checkWorkNumber),
     path('user/signup',views.insertRecord),
     path('user/unbind', views.deleteRecord),
-    path('user/meetingRoom/checkTime',views.meetingRoomCheck)
+    path('user/meetingRoom/checkTime',views.meetingRoomCheck),
     path('user/labRoom/checkCap',views.labRoomCapCheck()),
 ]
