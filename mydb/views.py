@@ -114,7 +114,7 @@ def meetingRoomCheck(request):
 
 # 实验室预约
 # 1查询人数对应可选教室
-def labroomCapCheck(request):
+def labRoomCapCheck(request):
     # 获取数据
     body = request.body
     data = json.loads(body)
