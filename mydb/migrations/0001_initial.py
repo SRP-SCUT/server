@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
                 ('date', models.CharField(max_length=80)),
                 ('time', models.CharField(max_length=80)),
                 ('roomType', models.IntegerField(default=0)),
-                ('status', models.IntegerField(default=2)),
+                ('status', models.IntegerField(default=0)),
             ],
             options={
                 'db_table': 'rooms_teacher',
