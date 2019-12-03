@@ -63,6 +63,13 @@ def meetingRoomAppointment(request):
     roomId = data['roomNum']  
     date = data['date']
     timeslot = data['timeslot']
+    time = ''
+    cnt = 0
+    for each in timeslot:
+        if cnt == 0:
+            time = each
+        else:
+            time = time + ',' +each
 
     result = {}
     SuccessResult = {"code": 1, "msg": "预约成功"}
@@ -73,27 +80,12 @@ def meetingRoomAppointment(request):
         result = FailedResult
     else:
         name = models.teacher.objects.filter(teacherId=teacherId)[0].name
-        # 判断会议室是否已被占用
+        # 判断会议室是否已被占用(不需要判断，前端确保插入时间端不冲突)
         # roomType 0代表会议室，1代表实验室
-        
-        #当天有记录
-        if models.rooms_teacher.objects.filter(roomId=roomId,roomType=0, date=date, status=1).count() > 0:
-            ok = 1
-            #当天时间是否冲突
-            for time in timeslot:
-                if models.rooms_teacher.objects.filter(roomId=roomId,roomType=0, date=date, time=time, status=1).count() > 0:
-                    result = FailedResult
-                    ok = 0
-            if ok==1:
-                models.rooms_teacher.objects.create(roomId=roomId, teacherId=teacherId, name=name, roomType=0, date=date,time=time, status=1)
-                result = SuccessResult
-                
-        #当天无记录           
-        else:
-            models.rooms_teacher.objects.create(roomId=roomId, teacherId=teacherId, name=name, roomType=0, date=date,time=time, status=1)
-            result = SuccessResult
+        models.rooms_teacher.objects.create(roomId=roomId, teacherId=teacherId, name=name, roomType=0, date=date,time=time, status=1)
+        result = SuccessResult
 
-            # Jsondata是返回的Json数据
+    # Jsondata是返回的Json数据
     Jsondata = json.dumps(result)
     return HttpResponse(Jsondata, content_type='application/json')
 
@@ -105,9 +97,9 @@ def meetingRoomCheck(request):
     date = data['date']
 
     result = {}
-    FailedResult = {"code": 0, "msg": "查询失败", "data": []}
-    SuccessResult = {"code": 1, "msg": "查询成功", "data": []}
-    data = []
+    FailedResult = {"code": 0, "msg": "查询失败", "data": ""}
+    SuccessResult = {"code": 1, "msg": "查询成功", "data": ""}
+    data = ""
     # 判断会议室是否已被占用
     # roomType 0代表会议室，1代表实验室
     # info=models.rooms_teacher.objects.filter(date=date)
@@ -115,10 +107,13 @@ def meetingRoomCheck(request):
         result = FailedResult
     else:
         items = models.rooms_teacher.objects.filter(roomType=0, date=date, roomId=roomId, status=1)
+        cnt = 0
         for item in items:
-            data.append(item.time)
-         #排序   
-        data.sort()
+            if cnt ==0:
+                data = item.time
+            else:
+                data = data + ',' + item.time
+       
         result = SuccessResult
         result['data'] = data
 
