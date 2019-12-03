@@ -62,7 +62,7 @@ def meetingRoomAppointment(request):
     teacherId = data['teacherId']
     roomId = data['roomNum']  
     date = data['date']
-    time = data['timeslot']
+    timeslot = data['timeslot']
 
     result = {}
     SuccessResult = {"code": 1, "msg": "预约成功"}
@@ -75,10 +75,22 @@ def meetingRoomAppointment(request):
         name = models.teacher.objects.filter(teacherId=teacherId)[0].name
         # 判断会议室是否已被占用
         # roomType 0代表会议室，1代表实验室
-        if models.rooms_teacher.objects.filter(roomId=roomId,roomType=0, date=date, time=time, status=1).count() > 0:
-            result = FailedResult
+        
+        #当天有记录
+        if models.rooms_teacher.objects.filter(roomId=roomId,roomType=0, date=date, status=1).count() > 0:
+            ok = 1
+            #当天时间是否冲突
+            for time in timeslot:
+                if models.rooms_teacher.objects.filter(roomId=roomId,roomType=0, date=date, time=time, status=1).count() > 0:
+                    result = FailedResult
+                    ok = 0
+            if ok==1:
+                models.rooms_teacher.objects.create(roomId=roomId, teacherId=teacherId, name=name, roomType=0, date=date,time=time, status=1)
+                result = SuccessResult
+                
+        #当天无记录           
         else:
-            models.rooms_teacher.objects.create(roomId=roomId, teacherId=teacherId, name=name, roomType=0, date=date,time=time, status=2)
+            models.rooms_teacher.objects.create(roomId=roomId, teacherId=teacherId, name=name, roomType=0, date=date,time=time, status=1)
             result = SuccessResult
 
             # Jsondata是返回的Json数据
@@ -105,6 +117,8 @@ def meetingRoomCheck(request):
         items = models.rooms_teacher.objects.filter(roomType=0, date=date, roomId=roomId, status=1)
         for item in items:
             data.append(item.time)
+         #排序   
+        data.sort()
         result = SuccessResult
         result['data'] = data
 
