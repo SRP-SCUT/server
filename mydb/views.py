@@ -64,7 +64,8 @@ def meetingRoomAppointment(request):
     date = data['date']
     timeslot = data['timeslot']
     time = ''
-    cnt = 0
+    timeslot.sort()
+    cnt = len(timeslot)
     for each in timeslot:
         if cnt == 0:
             time = each
@@ -82,7 +83,7 @@ def meetingRoomAppointment(request):
         name = models.teacher.objects.filter(teacherId=teacherId)[0].name
         # 判断会议室是否已被占用(不需要判断，前端确保插入时间端不冲突)
         # roomType 0代表会议室，1代表实验室
-        models.rooms_teacher.objects.create(roomId=roomId, teacherId=teacherId, name=name, roomType=0, date=date,time=time, status=1)
+        models.rooms_teacher.objects.create(roomId=roomId, teacherId=teacherId, name=name, roomType=0, date=date,time=time, status=2)
         result = SuccessResult
 
     # Jsondata是返回的Json数据
