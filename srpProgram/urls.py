@@ -26,5 +26,5 @@ urlpatterns = [
     path('user/signup',views.insertRecord),
     path('user/unbind', views.deleteRecord),
     path('user/meetingRoom/checkTime',views.meetingRoomCheck),
-    path('user/labRoom/checkCap',views.labRoomCapCheck),
+    path('user/labRoom/checkTime',views.labRoomCheck),
 ]

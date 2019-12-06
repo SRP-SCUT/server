@@ -113,30 +113,51 @@ def meetingRoomCheck(request):
     return HttpResponse(Jsondata, content_type='application/json')
 
 # 实验室预约
-# 1查询人数对应可选教室
-def labRoomCapCheck(request):
+# 1获取实验室可预定时间
+def labRoomCheck(request):
     # 获取数据
     body = request.body
     data = json.loads(body)
-    studentNum = data['studentNum']
+    labRoomId = data['labRoomNum']
     date = data['date']
 
     # 预定义变量
-    result = None
+    result = {}
     failedResult = {"code": 0, "msg": "查询失败", "data": []}
     successResult = {"code": 1, "msg": "查询成功", "data": []}
     data = []
 
-    # 检查并获取可选实验室
-    items = models.rooms.objects.filter(roomType=1, date=date)
-    if items.count() == 0:
-        result = failedResult
+    # 检查实验室可选时间
+    if '&' in labRoomId:
+        labRoomId1 = labRoomId[0:3]
+        labRoomId2 = labRoomId[6:9]
+        if len(models.rooms_teacher.objects.filter(roomType=1, date=date, roomId=labRoomId1)) == 0 or len(models.rooms_teacher.objects.filter(roomType=1, date=date, roomId=labRoomId2)) == 0:
+            result = failedResult
+            print("第一步失败")
+        else:
+            items1 = models.rooms_teacher.objects.filter(roomType=1, date=date, roomId=labRoomId1, status=1)
+            items2 = models.rooms_teacher.objects.filter(roomType=1, date=date, roomId=labRoomId2, status=1)
+            data1 = []
+            for item in items1:
+                data1.append(item.time)
+            data2 = []
+            for item in items2:
+                data2.append(item.time)
+            datat = set(data1) & set(data2)
+            for item in datat:
+                data.append(item)
+            result = successResult
+            result['data'] = data
     else:
-        for item in items:
-            if item.maxCap>studentNum:
-                data.append(item.roomId)
-        result = successResult
-        result['data'] = data
+        if len(models.rooms_teacher.objects.filter(roomType=1, date=date, roomId=labRoomId)) == 0:
+            result = failedResult
+            print("第二步失败")
+        else:
+            items = models.rooms_teacher.objects.filter(roomType=1, date=date, roomId=labRoomId, status=1)
+            for item in items:
+                data.append(item.time)
+            result = successResult
+            result['data'] = data
 
     # 返回结果
     Jsondata = json.dumps(result)
