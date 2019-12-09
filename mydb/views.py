@@ -113,7 +113,7 @@ def meetingRoomCheck(request):
     return HttpResponse(Jsondata, content_type='application/json')
 
 # 实验室预约
-# 1获取实验室可预定时间
+# 1获取实验室被占用时间
 def labRoomCheck(request):
     # 获取数据
     body = request.body
@@ -123,16 +123,16 @@ def labRoomCheck(request):
 
     # 预定义变量
     result = {}
-    failedResult = {"code": 0, "msg": "查询失败", "data": []}
-    successResult = {"code": 1, "msg": "查询成功", "data": []}
+    FailedResult = {"code": 0, "msg": "查询失败", "data": []}
+    SuccessResult = {"code": 1, "msg": "查询成功", "data": []}
     data = []
 
-    # 检查实验室可选时间
+    # 检查实验室占用时间
     if '&' in labRoomId:
         labRoomId1 = labRoomId[0:3]
         labRoomId2 = labRoomId[6:9]
         if len(models.rooms_teacher.objects.filter(roomType=1, date=date, roomId=labRoomId1)) == 0 or len(models.rooms_teacher.objects.filter(roomType=1, date=date, roomId=labRoomId2)) == 0:
-            result = failedResult
+            result = FailedResult
             print("第一步失败")
         else:
             items1 = models.rooms_teacher.objects.filter(roomType=1, date=date, roomId=labRoomId1, status=1)
@@ -146,18 +146,65 @@ def labRoomCheck(request):
             datat = set(data1) & set(data2)
             for item in datat:
                 data.append(item)
-            result = successResult
+            result = SuccessResult
             result['data'] = data
     else:
         if len(models.rooms_teacher.objects.filter(roomType=1, date=date, roomId=labRoomId)) == 0:
-            result = failedResult
+            result = FailedResult
             print("第二步失败")
         else:
             items = models.rooms_teacher.objects.filter(roomType=1, date=date, roomId=labRoomId, status=1)
             for item in items:
                 data.append(item.time)
-            result = successResult
+            result = SuccessResult
             result['data'] = data
+
+    # 返回结果
+    Jsondata = json.dumps(result)
+    return HttpResponse(Jsondata, content_type='application/json')
+
+# 2预约实验室
+def labRoomAppointment(request):
+    body = request.body
+    data = json.loads(body)
+    teacherId = data['teacherId']
+    labRoomId = data['labRoomNum']
+    date = data['date']
+    time = data['timeslot']
+
+    print(teacherId)
+    print(labRoomId)
+    print(date)
+    print(time)
+
+    result = {}
+    SuccessResult = {"code": 1, "msg": "预约成功"}
+    FailedResult = {"code": 0, "msg": "预约失败"}
+
+    # 查询teacherId 所对应的name
+    if models.teacher.objects.filter(teacherId=teacherId).count() != 1:
+        result = FailedResult
+    else:
+        name = models.teacher.objects.filter(teacherId=teacherId)[0].name
+        if '&' in labRoomId:
+            labRoomId1 = labRoomId[0:3]
+            labRoomId2 = labRoomId[6:9]
+            if models.rooms_teacher.objects.filter(roomId=labRoomId1, roomType=1, date=date, time=time, status=1).count() > 0 or models.rooms_teacher.objects.filter(roomId=labRoomId2, roomType=1, date=date, time=time, status=1).count() > 0 :
+                result = FailedResult
+                print("第一步失败")
+            else:
+                models.rooms_teacher.objects.create(roomId=labRoomId1, teacherId=teacherId, name=name, roomType=1, date=date, time=time, status=2)
+                models.rooms_teacher.objects.create(roomId=labRoomId2, teacherId=teacherId, name=name, roomType=1, date=date, time=time, status=2)
+                result = SuccessResult
+                print("第一步成功")
+        else:
+            if models.rooms_teacher.objects.filter(roomId=labRoomId, roomType=1, date=date, time=time, status=1).count() > 0:
+                result = FailedResult
+                print("第二步失败")
+            else:
+                models.rooms_teacher.objects.create(roomId=labRoomId, teacherId=teacherId, name=name, roomType=1, date=date, time=time, status=2)
+                result = SuccessResult
+                print("第二步成功")
 
     # 返回结果
     Jsondata = json.dumps(result)

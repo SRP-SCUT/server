@@ -27,4 +27,5 @@ urlpatterns = [
     path('user/unbind', views.deleteRecord),
     path('user/meetingRoom/checkTime',views.meetingRoomCheck),
     path('user/labRoom/checkTime',views.labRoomCheck),
+    path('user/labRoom/order',views.labRoomAppointment),
 ]
