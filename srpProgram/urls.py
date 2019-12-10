@@ -23,8 +23,10 @@ urlpatterns = [
     path('appointment',views.get_appointment),
     path('user/meetingRoom/order',views.meetingRoomAppointment),
     path('user/login', views.checkWorkNumber),
-    path('user/signup',views.insertRecord),
+    path('user/signup',views.insertRecord)
+    ,
     path('user/unbind', views.deleteRecord),
     path('user/meetingRoom/checkTime',views.meetingRoomCheck),
-    path('user/labRoom/checkCap',views.labRoomCapCheck),
+    path('user/labRoom/checkTime',views.labRoomCheck),
+    path('user/labRoom/order',views.labRoomAppointment),
 ]
