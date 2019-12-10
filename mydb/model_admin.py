@@ -93,7 +93,7 @@ class RoomsTeacherAdmin(admin.ModelAdmin):
         result=''
         timeslots=obj.time.split(',')
         meetingRoom=self.meetingRoom[0]
-        labRoom=self.labRoom[0]
+        labRoom=self.labRoom
         for time in timeslots:
             if obj.roomType==0:
                 for i in range(len(meetingRoom)):
