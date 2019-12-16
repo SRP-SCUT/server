@@ -135,7 +135,7 @@ def labRoomCheck(request):
     result = {}
     FailedResult = {"code": 0, "msg": "查询失败", "data": []}
     SuccessResult = {"code": 1, "msg": "查询成功", "data": []}
-    data = []
+    data = ''
 
     # 检查实验室占用时间
     if '&' in labRoomId:
@@ -153,8 +153,11 @@ def labRoomCheck(request):
             for item in items2:
                 data2.append(item.time)
             datat = set(data1) & set(data2)
-            for item in datat:
-                data.append(item)
+            for index in range(len(datat)):
+                if index == 0:
+                    data = datat[index]
+                else:
+                    data += ',' + datat[index]
             result = SuccessResult
             result['data'] = data
     else:
@@ -162,8 +165,11 @@ def labRoomCheck(request):
             result = FailedResult
         else:
             items = models.rooms_teacher.objects.filter(roomType=1, date=date, roomId=labRoomId, status=1)
-            for item in items:
-                data.append(item.time)
+            for index in range(len(items)):
+                if index == 0:
+                    data = items[index]
+                else:
+                    data += ',' + items[index]
             result = SuccessResult
             result['data'] = data
 
@@ -178,12 +184,14 @@ def labRoomAppointment(request):
     teacherId = data['teacherId']
     labRoomId = data['roomNum']
     date = data['date']
-    time = data['timeslot']
+    timeslot = data['timeslot']
+    time = ''
+    for index in range(len(timeslot)):
+        if index == 0:
+            time += timeslot[index]
+        else:
+            time += ',' + timeslot[index]
 
-    print(teacherId)
-    print(labRoomId)
-    print(date)
-    print(time)
 
     result = {}
     SuccessResult = {"code": 1, "msg": "预约成功"}
@@ -197,18 +205,12 @@ def labRoomAppointment(request):
         if '&' in labRoomId:
             labRoomId1 = labRoomId[0:3]
             labRoomId2 = labRoomId[6:9]
-            if models.rooms_teacher.objects.filter(roomId=labRoomId1, roomType=1, date=date, time=time, status=1).count() > 0 or models.rooms_teacher.objects.filter(roomId=labRoomId2, roomType=1, date=date, time=time, status=1).count() > 0 :
-                result = FailedResult
-            else:
-                models.rooms_teacher.objects.create(roomId=labRoomId1, teacherId=teacherId, name=name, roomType=1, date=date, time=time, status=2)
-                models.rooms_teacher.objects.create(roomId=labRoomId2, teacherId=teacherId, name=name, roomType=1, date=date, time=time, status=2)
-                result = SuccessResult
+            models.rooms_teacher.objects.create(roomId=labRoomId1, teacherId=teacherId, name=name, roomType=1, date=date, time=time, status=2)
+            models.rooms_teacher.objects.create(roomId=labRoomId2, teacherId=teacherId, name=name, roomType=1, date=date, time=time, status=2)
+            result = SuccessResult
         else:
-            if models.rooms_teacher.objects.filter(roomId=labRoomId, roomType=1, date=date, time=time, status=1).count() > 0:
-                result = FailedResult
-            else:
-                models.rooms_teacher.objects.create(roomId=labRoomId, teacherId=teacherId, name=name, roomType=1, date=date, time=time, status=2)
-                result = SuccessResult
+            models.rooms_teacher.objects.create(roomId=labRoomId, teacherId=teacherId, name=name, roomType=1, date=date, time=time, status=2)
+            result = SuccessResult
 
     # 返回结果
     Jsondata = json.dumps(result)
