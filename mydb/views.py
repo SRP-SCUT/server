@@ -62,7 +62,15 @@ def meetingRoomAppointment(request):
     teacherId = data['teacherId']
     roomId = data['roomNum']  
     date = data['date']
-    time = data['timeslot']
+    timeslot = data['timeslot']
+    time = ''
+    timeslot.sort()
+    cnt = len(timeslot)
+    for each in timeslot:
+        if cnt == 0:
+            time = each
+        else:
+            time = time + ',' +each
 
     result = {}
     SuccessResult = {"code": 1, "msg": "预约成功"}
@@ -73,15 +81,12 @@ def meetingRoomAppointment(request):
         result = FailedResult
     else:
         name = models.teacher.objects.filter(teacherId=teacherId)[0].name
-        # 判断会议室是否已被占用
+        # 判断会议室是否已被占用(不需要判断，前端确保插入时间端不冲突)
         # roomType 0代表会议室，1代表实验室
-        if models.rooms_teacher.objects.filter(roomId=roomId,roomType=0, date=date, time=time, status=1).count() > 0:
-            result = FailedResult
-        else:
-            models.rooms_teacher.objects.create(roomId=roomId, teacherId=teacherId, name=name, roomType=0, date=date,time=time, status=2)
-            result = SuccessResult
+        models.rooms_teacher.objects.create(roomId=roomId, teacherId=teacherId, name=name, roomType=0, date=date,time=time, status=2)
+        result = SuccessResult
 
-            # Jsondata是返回的Json数据
+    # Jsondata是返回的Json数据
     Jsondata = json.dumps(result)
     return HttpResponse(Jsondata, content_type='application/json')
 
@@ -93,9 +98,9 @@ def meetingRoomCheck(request):
     date = data['date']
 
     result = {}
-    FailedResult = {"code": 0, "msg": "查询失败", "data": []}
-    SuccessResult = {"code": 1, "msg": "查询成功", "data": []}
-    data = []
+    FailedResult = {"code": 0, "msg": "查询失败", "data": ""}
+    SuccessResult = {"code": 1, "msg": "查询成功", "data": ""}
+    data = ""
     # 判断会议室是否已被占用
     # roomType 0代表会议室，1代表实验室
     # info=models.rooms_teacher.objects.filter(date=date)
@@ -103,8 +108,13 @@ def meetingRoomCheck(request):
         result = FailedResult
     else:
         items = models.rooms_teacher.objects.filter(roomType=0, date=date, roomId=roomId, status=1)
+        cnt = 0
         for item in items:
-            data.append(item.time)
+            if cnt ==0:
+                data = item.time
+            else:
+                data = data + ',' + item.time
+       
         result = SuccessResult
         result['data'] = data
 
@@ -203,6 +213,7 @@ def labRoomAppointment(request):
     # 返回结果
     Jsondata = json.dumps(result)
     return HttpResponse(Jsondata, content_type='application/json')
+
 
 def checkWorkNumber(request):
     body = request.body
