@@ -118,7 +118,7 @@ def labRoomCheck(request):
     # 获取数据
     body = request.body
     data = json.loads(body)
-    labRoomId = data['labRoomNum']
+    labRoomId = data['roomNum']
     date = data['date']
 
     # 预定义变量
@@ -133,7 +133,6 @@ def labRoomCheck(request):
         labRoomId2 = labRoomId[6:9]
         if len(models.rooms_teacher.objects.filter(roomType=1, date=date, roomId=labRoomId1)) == 0 or len(models.rooms_teacher.objects.filter(roomType=1, date=date, roomId=labRoomId2)) == 0:
             result = FailedResult
-            print("第一步失败")
         else:
             items1 = models.rooms_teacher.objects.filter(roomType=1, date=date, roomId=labRoomId1, status=1)
             items2 = models.rooms_teacher.objects.filter(roomType=1, date=date, roomId=labRoomId2, status=1)
@@ -151,7 +150,6 @@ def labRoomCheck(request):
     else:
         if len(models.rooms_teacher.objects.filter(roomType=1, date=date, roomId=labRoomId)) == 0:
             result = FailedResult
-            print("第二步失败")
         else:
             items = models.rooms_teacher.objects.filter(roomType=1, date=date, roomId=labRoomId, status=1)
             for item in items:
@@ -168,7 +166,7 @@ def labRoomAppointment(request):
     body = request.body
     data = json.loads(body)
     teacherId = data['teacherId']
-    labRoomId = data['labRoomNum']
+    labRoomId = data['roomNum']
     date = data['date']
     time = data['timeslot']
 
@@ -191,20 +189,16 @@ def labRoomAppointment(request):
             labRoomId2 = labRoomId[6:9]
             if models.rooms_teacher.objects.filter(roomId=labRoomId1, roomType=1, date=date, time=time, status=1).count() > 0 or models.rooms_teacher.objects.filter(roomId=labRoomId2, roomType=1, date=date, time=time, status=1).count() > 0 :
                 result = FailedResult
-                print("第一步失败")
             else:
                 models.rooms_teacher.objects.create(roomId=labRoomId1, teacherId=teacherId, name=name, roomType=1, date=date, time=time, status=2)
                 models.rooms_teacher.objects.create(roomId=labRoomId2, teacherId=teacherId, name=name, roomType=1, date=date, time=time, status=2)
                 result = SuccessResult
-                print("第一步成功")
         else:
             if models.rooms_teacher.objects.filter(roomId=labRoomId, roomType=1, date=date, time=time, status=1).count() > 0:
                 result = FailedResult
-                print("第二步失败")
             else:
                 models.rooms_teacher.objects.create(roomId=labRoomId, teacherId=teacherId, name=name, roomType=1, date=date, time=time, status=2)
                 result = SuccessResult
-                print("第二步成功")
 
     # 返回结果
     Jsondata = json.dumps(result)
